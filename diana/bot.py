@@ -1,7 +1,6 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
-from langchain_core.messages.human import HumanMessage
 
 from diana.settings import (
     TELEGRAM_TOKEN,
@@ -10,7 +9,7 @@ from diana.settings import (
     logger
 )
 
-from diana.agent import agent
+from diana.agent import run_agent
 
 
 # TODO: Complte help
@@ -19,10 +18,13 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
     if update.effective_user.username == OWNER_USERNAME:
-        user_message = HumanMessage(update.message.text)
-        reply_message = await agent.ainvoke({"messages": user_message})
-        await update.message.reply_text(reply_message["messages"][-1].content)
+
+        agent_response = await run_agent(thread_id=update.effective_user.id,
+                                         human_message=update.message.text)
+ 
+        await update.message.reply_text(agent_response["messages"][-1].content)
     
     # TODO: Handle if it is not owner
     else: 
@@ -44,7 +46,7 @@ def run_bot():
 
     app.add_handler(CommandHandler("help", help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
-    
+
     logger.info("Diana Starting ...")
 
     app.run_polling()
