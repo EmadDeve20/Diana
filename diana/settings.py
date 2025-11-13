@@ -20,6 +20,8 @@ SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT")
 
 OWNER_USERNAME = os.getenv("OWNER_USERNAME")
 
+AI_MEMORY_DB = os.getenv("AI_MEMORY_DB") or "checkpoints.sqlite"
+
 logger = logging.getLogger(__name__)
 
 
