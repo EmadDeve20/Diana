@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:17
+    container_name: diana_postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=diana
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - diana-postgres-data:/var/lib/postgresql/data/
+
+
+volumes:
+  diana-postgres-data:
