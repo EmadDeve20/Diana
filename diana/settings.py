@@ -1,34 +1,38 @@
-# TODO: Change Settings and use pydantic_settings to keep settings parameters
 
-import os
 import logging
 
 from dotenv import load_dotenv
 
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+class Settings(BaseSettings):
 
-PROXY_URL = os.getenv("PROXY_URL") or None
 
-HUGGINGFACE_KEY = os.getenv("HUGGINGFACE_KEY")
+    TELEGRAM_TOKEN : str
 
-MODEL = os.getenv("MODEL")
+    PROXY_URL : str | None
 
-TEMPERATURE = float(os.getenv("TEMPERATURE") or "0")
+    HUGGINGFACE_KEY : str | None = Field(None)
 
-SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT")
+    MODEL : str 
 
-OWNER_USERNAME = os.getenv("OWNER_USERNAME")
+    TEMPERATURE : float = Field(0.0)
 
-AI_MEMORY_DB = os.getenv("AI_MEMORY_DB") or "checkpoints.sqlite"
+    SYSTEM_PROMPT : str 
 
-DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+asyncpg://user:password@127.0.0.1:5432/diana"
+    OWNER_USERNAME : str 
 
-DEBUG:str = os.getenv("DEBUG") or "true"
+    AI_MEMORY_DB : str = Field("checkpoints.sqlite")
 
-DEBUG:bool = True if DEBUG.lower() == "true" else False
+    DATABASE_URL : str = Field("postgresql+asyncpg://user:password@127.0.0.1:5432/diana")
+
+    DEBUG:bool = Field(True)
+
+
+settings = Settings()
 
 logger = logging.getLogger(__name__)
 
