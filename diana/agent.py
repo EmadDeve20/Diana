@@ -4,20 +4,14 @@ from langchain_core.messages.human import HumanMessage
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
-from diana.settings import (
-    HUGGINGFACE_KEY,
-    TEMPERATURE,
-    MODEL,
-    SYSTEM_PROMPT,
-    AI_MEMORY_DB
-)
+from diana.settings import settings
 
 from diana.ai_tools import TOOLS
 
 chat_endpoint = HuggingFaceEndpoint(
-    model=MODEL,
-    temperature=TEMPERATURE,
-    huggingfacehub_api_token=HUGGINGFACE_KEY
+    model=settings.MODEL,
+    temperature=settings.TEMPERATURE,
+    huggingfacehub_api_token=settings.HUGGINGFACE_KEY
 )
 
 chat_model = ChatHuggingFace(llm=chat_endpoint)
@@ -40,12 +34,12 @@ async def run_agent(thread_id:int, human_message:str) -> MessagesState:
 
     config = {"configurable": {"thread_id": thread_id}}
 
-    async with AsyncSqliteSaver.from_conn_string(AI_MEMORY_DB) as checkpointer:
+    async with AsyncSqliteSaver.from_conn_string(settings.AI_MEMORY_DB) as checkpointer:
 
         agent = create_agent(
             model=chat_model,
             tools=TOOLS,
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=settings.SYSTEM_PROMPT,
             checkpointer=checkpointer
         )
 
