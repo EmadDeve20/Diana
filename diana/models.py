@@ -18,5 +18,7 @@ class Todo(Base):
 
     status: Mapped[Literal["done", "in_progress"]] = mapped_column(String(25), default="in_progres")
     
+    datetime_to_do_it: Mapped[datetime] = mapped_column(DateTime(), unique=True)
+
     done_datetime: Mapped[datetime] = mapped_column(DateTime(), nullable=True, default=None)
 
