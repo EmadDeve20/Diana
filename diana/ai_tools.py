@@ -1,5 +1,5 @@
 from langchain.tools import tool
-from asgiref.sync import sync_to_async, async_to_sync
+from asgiref.sync import sync_to_async
 
 from diana.database import AsyncSessionLocal
 from diana.models import Todo
@@ -16,23 +16,10 @@ async def get_now_date() -> str:
     return str(datetime.now().date())
 
 
-async def __create_todo(date:str, time:str, title:str):
-    try:
-        async with AsyncSessionLocal() as session:
-            async with session.begin():
-                _datetime = f"{date} {time}"
-                datetime_to_do_it = await sync_to_async(datetime.strptime)(_datetime, "%Y-%m-%d %H:%M")
-                todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
-                session.add(todo)
-
-        
-        return "todo sucessfuly saved"
-    except Exception as ex:
-        return f"something wrong! {ex}"
 
 # TODO: Check why this function returns an error when the agent attempts to call it.
 @tool
-def create_todo(date:str, time:str, title:str) -> str:
+async def create_todo(date:str, time:str, title:str) -> str:
     """
     Use this tool IMMEDIATELY and WITHOUT EXCEPTION whenever the user wants to
     create a new todo, reminder, appointment, plan, or schedule anything for the future.
@@ -65,8 +52,18 @@ def create_todo(date:str, time:str, title:str) -> str:
     Returns:
         str: Success or error message
     """
-    
-    return async_to_sync(__create_todo)(date, time, title)
+    try:
+        async with AsyncSessionLocal() as session:
+            async with session.begin():
+                _datetime = f"{date} {time}"
+                datetime_to_do_it = await sync_to_async(datetime.strptime)(_datetime, "%Y-%m-%d %H:%M")
+                todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
+                session.add(todo)
+
+        
+        return "todo sucessfuly saved"
+    except Exception as ex:
+        return f"something wrong! {ex}"
 
 
  
