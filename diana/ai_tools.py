@@ -17,7 +17,6 @@ async def get_now_date() -> str:
 
 
 
-# TODO: Check why this function returns an error when the agent attempts to call it.
 @tool
 async def create_todo(date:str, time:str, title:str) -> str:
     """
@@ -52,18 +51,19 @@ async def create_todo(date:str, time:str, title:str) -> str:
     Returns:
         str: Success or error message
     """
-    try:
-        async with AsyncSessionLocal() as session:
-            async with session.begin():
-                _datetime = f"{date} {time}"
-                datetime_to_do_it = await sync_to_async(datetime.strptime)(_datetime, "%Y-%m-%d %H:%M")
-                todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
-                session.add(todo)
+    while True:
+        try:
+            async with AsyncSessionLocal() as session:
+                async with session.begin():
+                    _datetime = f"{date} {time}"
+                    datetime_to_do_it = await sync_to_async(datetime.strptime)(_datetime, "%Y-%m-%d %H:%M")
+                    todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
+                    session.add(todo)
 
-        
-        return "todo sucessfuly saved"
-    except Exception as ex:
-        return f"something wrong! {ex}"
+            
+            return "todo sucessfuly saved"
+        except Exception as ex:
+            return f"something wrong! {ex}"
 
 
  
