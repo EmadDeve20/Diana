@@ -49,10 +49,10 @@ python run_bot.py
 - [x] Add postgresql db
 - [x] Create TODOs table
 - [ ] Create Users of Telegram table to save Users (to send messages from the robot to them)
-- [ ] Create a tool to save a TODO by the agent for today
+- [X] Create a tool to save a TODO by the agent for today
 - [ ] Create a tool to show TODOs for today
 - [ ] Create tools to update the status of TODO, edit, and delete
 - [ ] Create a tool to send a message to another Telegram user
 - [ ] make better logging
-- [ ] improve settings: user `pydantic_settings`
+- [x] improve settings: user `pydantic_settings`
 
