@@ -50,7 +50,7 @@ python run_bot.py
 - [x] Create TODOs table
 - [ ] Create Users of Telegram table to save Users (to send messages from the robot to them)
 - [X] Create a tool to save a TODO by the agent for today
-- [ ] Create a tool to show TODOs for today
+- [X] Create a tool to show TODOs for today
 - [ ] Create tools to update the status of TODO, edit, and delete
 - [ ] Create a tool to send a message to another Telegram user
 - [ ] make better logging
