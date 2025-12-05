@@ -1,14 +1,20 @@
+from datetime import datetime
+
 from langchain.tools import tool
+
 from asgiref.sync import sync_to_async
 
 from diana.database import AsyncSessionLocal
 from diana.models import Todo
-from datetime import datetime
+
 
 @tool
 async def get_now_date() -> str:
     """
     get now date.
+    Always use this tool when you want to save data in the DB or get information to the user.
+    because this tool always wants to show always now datetime to keep you up to date.
+    about year, month, and day.
 
     Returns:
         str: now date like: 2025-11-24
@@ -16,7 +22,33 @@ async def get_now_date() -> str:
     return str(datetime.now().date())
 
 
+@tool
+async def get_now_time() -> str:
+    """
+    Returns the current real-world time in HH:MM:SS format (local server time).
 
+    You MUST call this tool every time you need to know the exact current time 
+    in order to answer the user correctly or perform any time-based calculation.
+
+    Always use this tool (never guess or use your training data time) in these situations:
+    - User asks "What time is it?" or "What’s the time now?"
+    - User wants scheduling, reminders, or delays ("Remind me in 2 hours", "Call me at 5 PM", "Do this tomorrow morning")
+    - You need to calculate time differences ("How many minutes until 6 PM?", "Is it past 9 AM yet?")
+    - User mentions relative time ("in an hour", "this evening", "tonight at 8")
+    - Any task involving countdowns, deadlines, alarms, or calendar planning
+
+    Important: Your internal knowledge of time is static and outdated. Always use this tool 
+    to get the accurate, up-to-the-second current time.
+
+    Returns:
+        str: Current time in 24-hour format as "HH:MM:SS" (e.g., "14:35:27")
+    """
+    now_time = str(datetime.now().time()) 
+    return now_time.split(".")[0]
+
+
+# TODO: check this function why sometimes crushed!
+# what is best practice to use SQLAlchemy to save data in this function?
 @tool
 async def create_todo(date:str, time:str, title:str) -> str:
     """
@@ -59,15 +91,14 @@ async def create_todo(date:str, time:str, title:str) -> str:
                     datetime_to_do_it = await sync_to_async(datetime.strptime)(_datetime, "%Y-%m-%d %H:%M")
                     todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
                     session.add(todo)
-
             
             return "todo sucessfuly saved"
         except Exception as ex:
             return f"something wrong! {ex}"
 
 
- 
 TOOLS = [
     get_now_date,
+    get_now_time,
     create_todo,
 ]
