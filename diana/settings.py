@@ -34,6 +34,8 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG if settings.DEBUG else logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 
