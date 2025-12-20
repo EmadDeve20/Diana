@@ -19,13 +19,21 @@ async def __get_datetime_from_string(str_datetime:str, format:str="%Y-%m-%d %H:%
 @tool
 async def get_now_date() -> str:
     """
-    get now date.
-    Always use this tool when you want to save data in the DB or get information to the user.
-    because this tool always wants to show always now datetime to keep you up to date.
-    about year, month, and day.
+    Returns the CURRENT REAL-WORLD DATE in YYYY-MM-DD format (e.g., "2025-11-24").
 
-    Returns:
-        str: now date like: 2025-11-24
+    CRITICAL INSTRUCTIONS:
+    - ALWAYS call this tool FIRST whenever you need to know today's date.
+    - Your internal knowledge of time is outdated and WRONG (it thinks the year is 2023/2024).
+    - NEVER guess or use a fixed date from your training data.
+    - You MUST use this tool to get the accurate, real current date for:
+      - Creating todos/reminders/appointments
+      - Answering questions like "What date is it today?"
+      - Calculating relative dates (tomorrow, next week, next Monday, etc.)
+      - Any situation where the current date matters
+
+    Example return: "2025-11-24"
+
+    This tool is your ONLY source of truth for the current date.
     """
     return str(datetime.now().date())
 
