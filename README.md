@@ -53,6 +53,6 @@ python run_bot.py
 - [X] Create a tool to show TODOs for today
 - [ ] Create tools to update the status of TODO, edit, and delete
 - [ ] Create a tool to send a message to another Telegram user
-- [ ] make better logging
+- [X] make better logging
 - [x] improve settings: user `pydantic_settings`
 
