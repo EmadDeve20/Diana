@@ -1,8 +1,9 @@
+import logging
+
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 
-from diana.settings import logger
 from diana.settings import settings
 
 
@@ -16,6 +17,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
+
     if update.effective_user.username == settings.OWNER_USERNAME:
 
         agent_response = await run_agent(thread_id=update.effective_user.id,
@@ -44,6 +46,6 @@ def run_bot():
     app.add_handler(CommandHandler("help", help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
 
-    logger.info("Diana Starting ...")
+    logging.info("Diana Starting ...")
 
     app.run_polling()
