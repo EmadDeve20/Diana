@@ -7,7 +7,7 @@ from langchain.tools import tool
 from sqlalchemy import select
 
 
-from diana.database import AsyncSessionLocal, get_db
+from diana.database import get_db
 from diana.models import Todo
 
 
