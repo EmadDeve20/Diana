@@ -1,6 +1,11 @@
 from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
 from langchain.agents.factory import create_agent
+from langchain.agents.middleware import (
+    TodoListMiddleware,
+    LLMToolSelectorMiddleware,
+)
 from langchain_core.messages.human import HumanMessage
+
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
@@ -48,7 +53,12 @@ async def run_agent(thread_id:int, human_message:str) -> MessagesState:
             system_prompt=settings.SYSTEM_PROMPT,
             checkpointer=checkpointer,
             middleware=[log_request_middleware,
-                        log_response_middleware]
+                        log_response_middleware,
+                        TodoListMiddleware(),
+                        LLMToolSelectorMiddleware(
+                            model=chat_model.name,
+                            max_tools=10,
+                        )]
         )
 
         res = await agent.ainvoke({"messages": HumanMessage(human_message)}, config=config)
