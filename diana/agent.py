@@ -4,7 +4,12 @@ from langchain.agents.middleware import (
     TodoListMiddleware,
     LLMToolSelectorMiddleware,
 )
-from langchain_core.messages.human import HumanMessage
+from langchain_core.messages import (
+    HumanMessage,
+    SystemMessage,
+    AIMessage,
+    ToolMessage
+)
 
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -31,7 +36,8 @@ chat_model = ChatHuggingFace(llm=chat_endpoint)
 # TODO: research for best practice to use agent with memory
 # maybe it is better to make our agent before like builder.
 # I mean before compile, and then compile our graph in this function 
-async def run_agent(thread_id:int, human_message:str) -> MessagesState:
+async def run_agent(thread_id:int,
+message:HumanMessage|AIMessage|ToolMessage|SystemMessage) -> MessagesState:
     """
     talk with your agent or execute agent
 
@@ -61,6 +67,6 @@ async def run_agent(thread_id:int, human_message:str) -> MessagesState:
                         )]
         )
 
-        res = await agent.ainvoke({"messages": HumanMessage(human_message)}, config=config)
+        res = await agent.ainvoke({"messages": message}, config=config)
 
         return res
