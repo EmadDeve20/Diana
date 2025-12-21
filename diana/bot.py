@@ -21,21 +21,27 @@ from diana.agent import run_agent
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    system_message = SystemMessage(
-        "The user wants to know about you and your abilities. introduce about yourself."
-        " this is should be like a help page. Use the language most commonly used by the user."
-    )
+    user = update.effective_user 
+    
+    if user and user.username == settings.OWNER_USERNAME:
 
-    ai_response = await run_agent(thread_id=update.effective_user.id,
-                                  message=system_message) 
+        system_message = SystemMessage(
+            "The user wants to know about you and your abilities. introduce about yourself."
+            " this is should be like a help page. Use the language most commonly used by the user."
+        )
 
-    await update.message.reply_text(ai_response["messages"][-1].content)
+        ai_response = await run_agent(thread_id=update.effective_user.id,
+                                    message=system_message) 
+
+        await update.message.reply_text(ai_response["messages"][-1].content)
 
 
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
+    user = update.effective_user 
 
-    if update.effective_user.username == settings.OWNER_USERNAME:
+
+    if user and user.username == settings.OWNER_USERNAME:
         
         message = HumanMessage(update.message.text)
 
