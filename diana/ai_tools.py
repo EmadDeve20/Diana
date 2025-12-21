@@ -106,7 +106,7 @@ async def create_todo(date:str, time:str, title:str) -> str:
                 todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
                 session.add(todo)
         
-        return "todo sucessfuly saved"
+        return "todo successfully saved"
     except Exception as ex:
         return f"something wrong! {ex}"
 
