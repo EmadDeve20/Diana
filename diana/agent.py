@@ -10,38 +10,109 @@ from langchain_core.messages import (
     AIMessage,
     ToolMessage
 )
-
+from langchain_core.language_models.chat_models import BaseChatModel
+ 
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
 
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 
-from diana.settings import settings
+
+
+from diana.settings import settings, logging
 from diana.middlewares import (
     log_request_middleware,
     log_response_middleware,
 )
 from diana.ai_tools import TOOLS
+from diana.common import Borg
 
 
-chat_endpoint = HuggingFaceEndpoint(
-    model=settings.MODEL,
-    temperature=settings.TEMPERATURE,
-    huggingfacehub_api_token=settings.HUGGINGFACE_KEY
-)
+def generate_model() -> BaseChatModel:
+    """
+    generate model from AI's provider key in .env file 
 
-chat_model = ChatHuggingFace(llm=chat_endpoint)
+    Raises:
+        ValueError: raise ValueError if there is not any key for AI's provider
+
+    Returns:
+        BaseChatModel: return generated chat model
+
+    """
+
+    if settings.HUGGINGFACE_KEY:
+
+        logging.info("generating model from huggingface ... ")
+
+        chat_endpoint = HuggingFaceEndpoint(
+            model=settings.MODEL,
+            temperature=settings.TEMPERATURE,
+            huggingfacehub_api_token=settings.HUGGINGFACE_KEY
+        )
+
+        return ChatHuggingFace(llm=chat_endpoint)
+    
+    if settings.OPENAI_API_KEY:
+        logging.info("generating model from openAI ... ")
+
+        return ChatOpenAI(
+                   model=settings.MODEL,
+                   temperature=settings.TEMPERATURE)
 
 
-class Agent:
+    if settings.ANTHROPIC_API_KEY:
+        logging.info("generating model from Anthropic ... ")
 
-    _instance = None
+        return ChatAnthropic(
+            model_name=settings.MODEL,
+            temperature=settings.TEMPERATURE,
+            timeout=None,
+            stop=None
+        )
+    
+    if settings.GOOGLE_API_KEY:
+        logging.info("generating model from GoogleAI ... ")
 
-    def __new__(cls):
+        return ChatGoogleGenerativeAI(
+            model=settings.MODEL,
+            temperature=settings.TEMPERATURE,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2
+        )
+    
+    if settings.GROQ_API_KEY:
+        logging.info("generating model from Groq ... ")
 
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+        return ChatGroq(
+            model=settings.MODEL,
+            temperature=settings.TEMPERATURE,
+            max_tokens=None,
+            reasoning_format="parsed",
+            timeout=None,
+            max_retries=2,
+        )
+
+
+    raise ValueError("There's no API key for the AI provider.")
+
+
+
+class Agent(Borg):
+
+    def __init__(self, model:BaseChatModel|None=None):
+        super().__init__()
+
+        if model and not hasattr(self, "model"):
+            self.model = model
+
+        elif model is None and not hasattr(self, "model"):
+            self.model = generate_model()
+
 
     async def run_agent(self, thread_id:int,
     message:HumanMessage|AIMessage|ToolMessage|SystemMessage) -> MessagesState:
@@ -61,7 +132,7 @@ class Agent:
         async with AsyncSqliteSaver.from_conn_string(settings.AI_MEMORY_DB) as checkpointer:
 
             agent = create_agent(
-                model=chat_model,
+                model=self.model,
                 tools=TOOLS,
                 system_prompt=settings.SYSTEM_PROMPT,
                 checkpointer=checkpointer,
@@ -69,7 +140,7 @@ class Agent:
                             log_response_middleware,
                             TodoListMiddleware(),
                             LLMToolSelectorMiddleware(
-                                model=chat_model.name,
+                                model=self.model.name,
                                 max_tools=10,
                             )]
             )
