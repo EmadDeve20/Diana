@@ -17,7 +17,9 @@ from langchain_core.messages import (
 from diana.settings import settings
 
 
-from diana.agent import run_agent
+from diana.agent import Agent
+
+agent = Agent()
 
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -30,7 +32,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             " this is should be like a help page. Use the language most commonly used by the user."
         )
 
-        ai_response = await run_agent(thread_id=update.effective_user.id,
+        ai_response = await agent.run_agent(thread_id=update.effective_user.id,
                                     message=system_message) 
 
         await update.message.reply_text(ai_response["messages"][-1].content)
@@ -45,7 +47,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         message = HumanMessage(update.message.text)
 
-        agent_response = await run_agent(thread_id=update.effective_user.id,
+        agent_response = await agent.run_agent(thread_id=update.effective_user.id,
                                          message=message)
  
         await update.message.reply_text(agent_response["messages"][-1].content)
