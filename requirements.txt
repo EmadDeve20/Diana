@@ -20,5 +20,9 @@ aiohttp==3.13.2
 aiosqlite==0.21.0
 langgraph-checkpoint-sqlite==3.0.0
 asgiref==3.11.0
+langchain-openai
+langchain-anthropic
+langchain-google-genai
+langchain-groq
 
 alembic==1.17.2
