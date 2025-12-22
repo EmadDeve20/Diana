@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     PROXY_URL : str | None
 
     HUGGINGFACE_KEY : str | None = Field(None)
+    OPENAI_API_KEY : str | None = Field(None)
+    ANTHROPIC_API_KEY: str | None = Field(None)
+    GOOGLE_API_KEY: str | None = Field(None)
+    GROQ_API_KEY: str | None = Field(None)
+
 
     MODEL : str 
 
