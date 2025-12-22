@@ -33,40 +33,47 @@ chat_endpoint = HuggingFaceEndpoint(
 chat_model = ChatHuggingFace(llm=chat_endpoint)
 
 
-# TODO: research for best practice to use agent with memory
-# maybe it is better to make our agent before like builder.
-# I mean before compile, and then compile our graph in this function 
-async def run_agent(thread_id:int,
-message:HumanMessage|AIMessage|ToolMessage|SystemMessage) -> MessagesState:
-    """
-    talk with your agent or execute agent
+class Agent:
 
-    Args:
-        thread_id (int): thread id
-        human_message (str): message of human
+    _instance = None
 
-    Returns:
-        MessagesState: return MessagesState
-    """
+    def __new__(cls):
 
-    config = {"configurable": {"thread_id": thread_id}}
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
-    async with AsyncSqliteSaver.from_conn_string(settings.AI_MEMORY_DB) as checkpointer:
+    async def run_agent(self, thread_id:int,
+    message:HumanMessage|AIMessage|ToolMessage|SystemMessage) -> MessagesState:
+        """
+        talk with your agent or execute agent
 
-        agent = create_agent(
-            model=chat_model,
-            tools=TOOLS,
-            system_prompt=settings.SYSTEM_PROMPT,
-            checkpointer=checkpointer,
-            middleware=[log_request_middleware,
-                        log_response_middleware,
-                        TodoListMiddleware(),
-                        LLMToolSelectorMiddleware(
-                            model=chat_model.name,
-                            max_tools=10,
-                        )]
-        )
+        Args:
+            thread_id (int): thread id
+            human_message (str): message of human
 
-        res = await agent.ainvoke({"messages": message}, config=config)
+        Returns:
+            MessagesState: return MessagesState
+        """
 
-        return res
+        config = {"configurable": {"thread_id": thread_id}}
+
+        async with AsyncSqliteSaver.from_conn_string(settings.AI_MEMORY_DB) as checkpointer:
+
+            agent = create_agent(
+                model=chat_model,
+                tools=TOOLS,
+                system_prompt=settings.SYSTEM_PROMPT,
+                checkpointer=checkpointer,
+                middleware=[log_request_middleware,
+                            log_response_middleware,
+                            TodoListMiddleware(),
+                            LLMToolSelectorMiddleware(
+                                model=chat_model.name,
+                                max_tools=10,
+                            )]
+            )
+
+            res = await agent.ainvoke({"messages": message}, config=config)
+
+            return res
