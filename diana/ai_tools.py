@@ -5,10 +5,12 @@ from datetime import datetime
 from langchain.tools import tool
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from diana.database import get_db
 from diana.models import Todo
+from diana.settings import logging
 
 
 async def __get_datetime_from_string(str_datetime:str, format:str="%Y-%m-%d %H:%M") -> datetime:
@@ -184,10 +186,87 @@ status:Literal["all", "done", "in progress"]="all") -> str:
         return "There is a problem."
 
 
+async def __get_todo_by_date_and_title(date:str, time:str, title:str, session:AsyncSession) -> Todo|str:
+
+    async with session.begin():
+        try:
+            
+            datetime = f"{date} {time}" 
+            datetime = await __get_datetime_from_string(str_datetime=datetime)
+
+            query = (
+                select(Todo)
+                .where(Todo.datetime_to_do_it==datetime, Todo.title==title)
+            )
+
+            result = await session.execute(query)
+
+            todo = result.scalar_one_or_none()
+
+            if todo is None:
+                return "todo not found"
+            return todo
+
+        except Exception as ex:
+            logging.error(f"failed to get todo by date and title: {ex}")
+            return f"failed to find todo. reason is : {ex}"
+
+
+# TODO: do complete of this function 
+async def update_todo(date:str|None, title:str,
+current_status:Literal["done", "in progress"]="in progress",
+new_status:Literal["done", "in progress"]="done"):
+
+    ...
+
+
+@tool
+async def delete_todo(date:str, time:str, title:str) -> str:
+    """
+    use this tool when you want to delete a todo
+
+    Args:
+        date (str): Date in EXACT YYYY-MM-DD format (example: 2025-11-26, 2025-12-25)
+        time (str): Time in 24-hour HH:MM format with leading zeros (example: 09:30, 17:00, 08:15)
+        title (str): Full title or description of the task/reminder exactly as the user wants it saved
+
+    Returns:
+        str: Success or error message
+    """
+    
+    
+    async with  get_db() as session:
+
+        todo = await __get_todo_by_date_and_title(date=date,
+                                                time=time,
+                                                title=title,
+                                                session=session)
+
+        if isinstance(todo, str):
+            return todo
+
+
+        async with session.begin():
+            
+            try:
+                await session.delete(todo)
+                return "todo deleted successfully"
+
+            except Exception as ex:
+                await session.rollback()
+                logging.error(f"failed to delete todo: {ex}")
+                return "there is a problem"
+
+
+
+
+
+
 TOOLS = [
     get_now_date,
     get_now_time,
     create_todo,
     get_todo_list,
+    delete_todo,
 ]
 
