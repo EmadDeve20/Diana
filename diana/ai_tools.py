@@ -99,18 +99,20 @@ async def create_todo(date:str, time:str, title:str) -> str:
     Returns:
         str: Success or error message
     """
-    try:
-        async with get_db() as session:
-            async with session.begin():
+    async with get_db() as session:
+        async with session.begin():
+            try:
                 _datetime = f"{date} {time}"
                 datetime_to_do_it = await __get_datetime_from_string(_datetime,
                                                                         "%Y-%m-%d %H:%M")
                 todo = Todo(title=title, datetime_to_do_it=datetime_to_do_it)
                 session.add(todo)
         
-        return "todo successfully saved"
-    except Exception as ex:
-        return f"something wrong! {ex}"
+                return "todo successfully saved"
+            except Exception as ex:
+                await session.rollback()
+                logging.error("failed to create todo: {ex}")
+                return f"something wrong! {ex}"
 
 
 @tool
