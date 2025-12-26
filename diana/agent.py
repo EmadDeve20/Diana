@@ -11,6 +11,7 @@ from langchain_core.messages import (
     ToolMessage
 )
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain.chat_models import init_chat_model
  
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -95,6 +96,16 @@ def generate_model() -> BaseChatModel:
             reasoning_format="parsed",
             timeout=None,
             max_retries=2,
+        )
+    
+    if settings.OPENROUTER_API_KEY:
+        logging.info("generating model from OpenRouter")
+
+        return init_chat_model(
+            model=settings.MODEL,
+            model_provider="openai",
+            base_url="https://openrouter.ai/api/v1",
+            api_key=settings.OPENROUTER_API_KEY
         )
 
 
