@@ -1,3 +1,4 @@
+from typing import Optional
 
 import logging
 
@@ -13,13 +14,14 @@ class Settings(BaseSettings):
 
     TELEGRAM_TOKEN : str
 
-    PROXY_URL : str | None
+    PROXY_URL : Optional[str]
 
-    HUGGINGFACE_KEY : str | None = Field(None)
-    OPENAI_API_KEY : str | None = Field(None)
-    ANTHROPIC_API_KEY: str | None = Field(None)
-    GOOGLE_API_KEY: str | None = Field(None)
-    GROQ_API_KEY: str | None = Field(None)
+    HUGGINGFACE_KEY : Optional[str] = Field(None)
+    OPENAI_API_KEY : Optional[str] = Field(None)
+    ANTHROPIC_API_KEY: Optional[str] = Field(None)
+    GOOGLE_API_KEY: Optional[str] = Field(None)
+    GROQ_API_KEY: Optional[str] = Field(None)
+    OPENROUTER_API_KEY: Optional[str] = Field(None) 
 
 
     MODEL : str 
