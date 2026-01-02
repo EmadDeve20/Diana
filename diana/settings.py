@@ -34,7 +34,11 @@ class Settings(BaseSettings):
 
     AI_MEMORY_DB : str = Field("checkpoints.sqlite")
 
-    DATABASE_URL : str = Field("postgresql+asyncpg://user:password@127.0.0.1:5432/diana")
+    DB_USER : str
+    DB_PASSWORD : str
+    DB_HOST : str
+    DB_PORT : str
+    DB_NAME : str
 
     DEBUG:bool = Field(True)
 
