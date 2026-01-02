@@ -154,8 +154,9 @@ status:Literal["all", "done", "in progress"]="all") -> str:
         This tool always fetches the latest data directly from the database.
     """
 
-    try:
-        async with get_db() as session:
+    async with get_db() as session:
+        async with session.begin():
+            try:
                 
                 query =  select(Todo)
 
@@ -184,8 +185,9 @@ status:Literal["all", "done", "in progress"]="all") -> str:
 
                 return todo_list
 
-    except Exception: 
-        return "There is a problem."
+            except Exception as e: 
+                logging.error(f"failed to get list of TODOs! details: {e}")
+                return "There is a problem."
 
 
 async def __get_todo_by_date_and_title(date:str, time:str, title:str, session:AsyncSession) -> Todo|str:
