@@ -116,7 +116,7 @@ async def create_todo(date:str, time:str, title:str) -> str:
                 return f"something wrong! {ex}"
 
 
-# @tool
+@tool
 async def get_todo_list(date:str|None= None,
 status:Literal["all", "done", "in progress"]="all") -> str:
     """
