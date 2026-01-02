@@ -6,6 +6,7 @@ from langchain.tools import tool
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import cast, Date
 
 
 from diana.database import get_db
@@ -115,7 +116,7 @@ async def create_todo(date:str, time:str, title:str) -> str:
                 return f"something wrong! {ex}"
 
 
-@tool
+# @tool
 async def get_todo_list(date:str|None= None,
 status:Literal["all", "done", "in progress"]="all") -> str:
     """
@@ -161,9 +162,10 @@ status:Literal["all", "done", "in progress"]="all") -> str:
                 query =  select(Todo)
 
                 if date:
-                    current_date = await __get_datetime_from_string(date)
+                    current_date = await __get_datetime_from_string(date,
+                                                                    format="%Y-%m-%d")
                     query = query.where(
-                                Todo.datetime_to_do_it==current_date
+                                cast(Todo.datetime_to_do_it, Date)==current_date
                             ) 
 
                 if status != "all":
